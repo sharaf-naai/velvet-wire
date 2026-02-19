@@ -332,36 +332,32 @@
       }
       .manifesto-text {
         font-family: var(--font-serif);
-        /* Smaller font size */
         font-size: clamp(1.5rem, 3vw, 2.5rem);
         line-height: 1.5;
-        color: rgba(255, 255, 255, 0.1); /* Starts dim */
+        color: rgba(255, 255, 255, 0.1);
         text-align: center;
         max-width: 900px;
-        /* Setup for top/bottom quotes */
         display: flex;
         flex-direction: column;
         align-items: center;
       }
 
-      /* Add large quotes using pseudo-elements */
       .manifesto-text::before,
       .manifesto-text::after {
         font-family: var(--font-serif);
-        font-size: 5rem; /* Large size for quotes */
+        font-size: 5rem;
         color: var(--neon-violet);
         opacity: 0.8;
-        line-height: 0; /* Prevents extra height issues */
+        line-height: 0;
       }
 
       .manifesto-text::before {
         content: "“";
-        transform: translateY(-30px); /* Move up */
+        transform: translateY(-30px);
       }
-
       .manifesto-text::after {
         content: "”";
-        transform: translateY(40px); /* Move down */
+        transform: translateY(40px);
       }
 
       /* --- UNIFORM STAGGERED PORTFOLIO GRID --- */
@@ -846,7 +842,7 @@
       </section>
 
       <section id="work" class="work-grid">
-        <a href="noir-clothing/index.html" target="_blank" class="work-item">
+        <a target="_blank" href="/noir-clothing/" class="work-item">
           <div class="work-img-box">
             <div class="hover-badge">View Project</div>
             <div class="parallax-wrap">
@@ -855,12 +851,12 @@
             </div>
           </div>
           <div class="work-details">
-            <h3 class="work-title">Noir Archive</h3>
+            <h3 class="work-title">Noir-Archive</h3>
             <span class="work-cat">Fashion E-Commerce</span>
           </div>
         </a>
 
-        <a href="saffron/index.html" target="_blank" class="work-item">
+        <a target="_blank" href="/saffron/" class="work-item">
           <div class="work-img-box">
             <div class="hover-badge">View Project</div>
             <div class="parallax-wrap">
@@ -874,7 +870,7 @@
           </div>
         </a>
 
-        <a href="residence/index.html" target="_blank" class="work-item">
+        <a target="_blank" href="/aura/" class="work-item">
           <div class="work-img-box">
             <div class="hover-badge">View Project</div>
             <div class="parallax-wrap">
@@ -883,12 +879,12 @@
             </div>
           </div>
           <div class="work-details">
-            <h3 class="work-title">Aura Residences</h3>
+            <h3 class="work-title">Aura-Residences</h3>
             <span class="work-cat">Luxury Real Estate</span>
           </div>
         </a>
 
-        <a href="celeste/index.html" target="_blank" class="work-item">
+        <a target="_blank" href="/celeste/" class="work-item">
           <div class="work-img-box">
             <div class="hover-badge">View Project</div>
             <div class="parallax-wrap">
@@ -897,7 +893,7 @@
             </div>
           </div>
           <div class="work-details">
-            <h3 class="work-title">Céleste Paris</h3>
+            <h3 class="work-title">Celeste-Paris</h3>
             <span class="work-cat">Editorial Beauty</span>
           </div>
         </a>
