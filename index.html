@@ -1,0 +1,1190 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>VELVET WIRE | Digital Architecture</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600&family=Syncopate:wght@400;700&family=Manrope:wght@300;400;500&display=swap"
+      rel="stylesheet"
+    />
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+
+    <style>
+      /* --- CORE VARIABLES --- */
+      :root {
+        --bg-color: #050505;
+        --text-main: #f0f0f0;
+        --text-muted: #888888;
+        --accent: #ffffff;
+        --neon-violet: #9d00ff;
+        --deep-violet: #4b0082;
+        --grid-color: rgba(255, 255, 255, 0.03);
+        --spotlight-color: rgba(157, 0, 255, 0.12);
+        --border-color: rgba(255, 255, 255, 0.1);
+        --font-display: "Syncopate", sans-serif;
+        --font-serif: "Cinzel", serif;
+        --font-body: "Manrope", sans-serif;
+        --transition-smooth: all 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+      }
+
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      ::selection {
+        background: var(--neon-violet);
+        color: white;
+        text-shadow: 0 0 10px white;
+      }
+
+      html {
+        scroll-behavior: smooth;
+      }
+
+      body {
+        background-color: var(--bg-color);
+        color: var(--text-main);
+        font-family: var(--font-body);
+        overflow-x: hidden;
+        cursor: none;
+        width: 100%;
+      }
+
+      /* --- FIXED CURSOR CSS --- */
+      .cursor-dot {
+        width: 6px;
+        height: 6px;
+        background: white;
+        position: fixed;
+        border-radius: 50%;
+        pointer-events: none;
+        z-index: 9999;
+        top: 0;
+        left: 0;
+        transform: translate(-50%, -50%);
+      }
+      .cursor-outline {
+        width: 40px;
+        height: 40px;
+        border: 1px solid rgba(255, 255, 255, 0.4);
+        position: fixed;
+        border-radius: 50%;
+        pointer-events: none;
+        z-index: 9998;
+        top: 0;
+        left: 0;
+        transform: translate(-50%, -50%);
+        transition:
+          width 0.3s,
+          height 0.3s,
+          background 0.3s;
+      }
+
+      @media (hover: none) and (pointer: coarse) {
+        .cursor-dot,
+        .cursor-outline {
+          display: none !important;
+        }
+        body,
+        a,
+        button {
+          cursor: auto !important;
+        }
+      }
+
+      a {
+        text-decoration: none;
+        color: white;
+        cursor: none;
+        transition: color 0.3s ease;
+      }
+      a:hover {
+        color: var(--neon-violet);
+      }
+
+      /* --- PRELOADER --- */
+      .preloader {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100vh;
+        background: #000;
+        z-index: 10000;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        flex-direction: column;
+      }
+      .loader-text {
+        font-family: var(--font-display);
+        font-size: 2rem;
+        letter-spacing: 5px;
+        color: transparent;
+        -webkit-text-stroke: 1px white;
+        opacity: 0.3;
+      }
+      .loader-bar-bg {
+        width: 200px;
+        height: 2px;
+        background: rgba(255, 255, 255, 0.1);
+        margin-top: 20px;
+        overflow: hidden;
+      }
+      .loader-bar {
+        width: 0%;
+        height: 100%;
+        background: var(--neon-violet);
+        box-shadow: 0 0 20px var(--neon-violet);
+      }
+
+      /* --- BACKGROUND FX --- */
+      .bg-grid {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100vw;
+        height: 100vh;
+        background-image:
+          linear-gradient(var(--grid-color) 1px, transparent 1px),
+          linear-gradient(90deg, var(--grid-color) 1px, transparent 1px);
+        background-size: 60px 60px;
+        z-index: -2;
+        pointer-events: none;
+      }
+      .spotlight {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100vw;
+        height: 100vh;
+        background: radial-gradient(
+          circle at var(--x, 50%) var(--y, 50%),
+          var(--spotlight-color) 0%,
+          transparent 40%
+        );
+        z-index: -1;
+        pointer-events: none;
+        mix-blend-mode: screen;
+      }
+
+      /* --- NAVIGATION --- */
+      nav {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 30px 5%;
+        top: 0;
+        position: fixed;
+        width: 100%;
+        z-index: 100;
+        mix-blend-mode: difference;
+      }
+      .logo {
+        font-family: var(--font-display);
+        font-weight: 700;
+        font-size: 1.2rem;
+        letter-spacing: 2px;
+      }
+      .logo span {
+        color: var(--neon-violet);
+      }
+      .nav-links {
+        display: flex;
+        gap: 40px;
+      }
+      .nav-item {
+        font-size: 0.8rem;
+        text-transform: uppercase;
+        letter-spacing: 2px;
+        position: relative;
+        overflow: hidden;
+        height: 20px;
+        color: white !important;
+      }
+      .nav-item span {
+        display: block;
+        transition: transform 0.4s ease;
+      }
+      .nav-item:hover span {
+        transform: translateY(-100%);
+      }
+      .nav-item::after {
+        content: attr(data-text);
+        position: absolute;
+        top: 100%;
+        left: 0;
+        width: 100%;
+        transition: transform 0.4s ease;
+        color: var(--neon-violet);
+      }
+      .nav-item:hover::after {
+        transform: translateY(-100%);
+      }
+      .hamburger {
+        display: none;
+        font-family: var(--font-display);
+        font-size: 0.9rem;
+        letter-spacing: 2px;
+        color: white;
+        text-transform: uppercase;
+        z-index: 201;
+      }
+
+      .content-layer {
+        position: relative;
+        z-index: 10;
+      }
+
+      /* --- HERO --- */
+      .hero {
+        height: 100vh;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        text-align: center;
+      }
+      .hero-label {
+        font-size: 0.9rem;
+        letter-spacing: 4px;
+        text-transform: uppercase;
+        color: var(--text-muted);
+        margin-bottom: 20px;
+        opacity: 0;
+      }
+      .hero-title {
+        font-family: var(--font-display);
+        font-size: clamp(3rem, 12vw, 10rem);
+        line-height: 0.85;
+        text-transform: uppercase;
+        mix-blend-mode: difference;
+      }
+      .hero-title .line {
+        display: block;
+        overflow: hidden;
+      }
+      .hero-title .line span {
+        display: block;
+        transform: translateY(110%);
+      }
+      .hero-title .line:nth-child(2) span {
+        color: transparent;
+        -webkit-text-stroke: 1px white;
+      }
+
+      .magnetic-btn {
+        display: inline-block;
+        padding: 20px 40px;
+        border: 1px solid rgba(255, 255, 255, 0.3);
+        border-radius: 50px;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        font-size: 0.9rem;
+        position: relative;
+        overflow: hidden;
+        transition: all 0.3s ease;
+        color: white !important;
+        margin-top: 60px;
+        cursor: none;
+      }
+      .magnetic-btn .btn-text {
+        position: relative;
+        z-index: 2;
+        pointer-events: none;
+      }
+      .magnetic-btn .btn-fill {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: var(--neon-violet);
+        transform: scaleY(0);
+        transform-origin: bottom;
+        transition: transform 0.5s cubic-bezier(0.7, 0, 0.3, 1);
+        z-index: 1;
+      }
+      .magnetic-btn:hover {
+        border-color: var(--neon-violet);
+        box-shadow: 0 0 20px rgba(157, 0, 255, 0.4);
+      }
+      .magnetic-btn:hover .btn-fill {
+        transform: scaleY(1);
+        transform-origin: top;
+      }
+
+      /* --- KINETIC TEXT REVEAL (MANIFESTO) --- */
+      .manifesto-section {
+        padding: 200px 10%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        min-height: 100vh;
+      }
+      .manifesto-text {
+        font-family: var(--font-serif);
+        font-size: clamp(2rem, 5vw, 4rem);
+        line-height: 1.3;
+        color: rgba(255, 255, 255, 0.1); /* Starts dim */
+        text-align: center;
+        max-width: 1200px;
+      }
+      /* GSAP will animate color to white line by line */
+
+      /* --- UNIFORM STAGGERED PORTFOLIO GRID --- */
+      .work-grid {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 60px;
+        padding: 150px 5%;
+        max-width: 1600px;
+        margin: 0 auto;
+      }
+      .work-item {
+        display: block;
+        position: relative;
+        cursor: none;
+      }
+      .work-item:nth-child(even) {
+        margin-top: 200px;
+      }
+      .work-img-box {
+        position: relative;
+        width: 100%;
+        height: 650px;
+        overflow: hidden;
+        background: #111;
+        border-radius: 4px;
+        border: 1px solid rgba(255, 255, 255, 0.05);
+        transition: var(--transition-smooth);
+      }
+      .parallax-wrap {
+        position: absolute;
+        top: -15%;
+        left: 0;
+        width: 100%;
+        height: 130%;
+        z-index: 1;
+      }
+      .work-img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        transform: scale(1);
+        transition: var(--transition-smooth);
+      }
+      .work-tint {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: var(--deep-violet);
+        opacity: 0.7;
+        mix-blend-mode: multiply;
+        z-index: 2;
+        transition: var(--transition-smooth);
+        pointer-events: none;
+      }
+      .hover-badge {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%) scale(0.5);
+        background: var(--neon-violet);
+        color: white;
+        padding: 15px 30px;
+        border-radius: 50px;
+        font-family: var(--font-display);
+        font-size: 0.8rem;
+        letter-spacing: 2px;
+        text-transform: uppercase;
+        opacity: 0;
+        z-index: 5;
+        transition: var(--transition-smooth);
+        pointer-events: none;
+      }
+
+      .work-item:hover .work-img-box {
+        border-color: var(--neon-violet);
+        box-shadow: 0 10px 40px rgba(157, 0, 255, 0.15);
+      }
+      .work-item:hover .work-tint {
+        opacity: 0;
+      }
+      .work-item:hover .work-img {
+        transform: scale(1.08) rotate(1.5deg);
+      }
+      .work-item:hover .hover-badge {
+        opacity: 1;
+        transform: translate(-50%, -50%) scale(1);
+        box-shadow: 0 10px 40px rgba(157, 0, 255, 0.5);
+      }
+
+      .work-details {
+        margin-top: 25px;
+        display: flex;
+        flex-direction: column;
+        gap: 5px;
+      }
+      .work-title {
+        font-size: 2rem;
+        font-family: var(--font-display);
+        font-weight: 700;
+        color: white;
+        text-transform: uppercase;
+        transition: color 0.4s ease;
+        line-height: 1;
+      }
+      .work-item:hover .work-title {
+        color: var(--neon-violet);
+      }
+      .work-cat {
+        color: var(--text-muted);
+        font-size: 0.9rem;
+        text-transform: uppercase;
+        letter-spacing: 2px;
+      }
+
+      /* --- REFINED SERVICES LIST (NO IMAGES, JUST CLEAN TYPOGRAPHY) --- */
+      .services-list {
+        padding: 100px 5%;
+        border-bottom: 1px solid var(--border-color);
+      }
+      .services-header {
+        font-family: var(--font-display);
+        font-size: 1rem;
+        color: var(--neon-violet);
+        letter-spacing: 3px;
+        text-transform: uppercase;
+        margin-bottom: 60px;
+      }
+
+      .service-row {
+        display: flex;
+        align-items: baseline;
+        padding: 50px 0;
+        border-bottom: 1px solid var(--border-color);
+        transition: 0.4s;
+        position: relative;
+        color: white;
+        cursor: none;
+      }
+      .service-row:hover {
+        padding-left: 20px;
+        border-color: var(--neon-violet);
+        background: rgba(157, 0, 255, 0.02);
+      }
+      .service-num {
+        font-family: var(--font-serif);
+        color: var(--text-muted);
+        font-size: 1.2rem;
+        width: 100px;
+      }
+
+      .service-text {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+      }
+      .service-name {
+        font-size: 3rem;
+        font-weight: 300;
+        transition: 0.3s;
+        font-family: var(--font-display);
+      }
+      .service-desc {
+        font-size: 1rem;
+        color: var(--text-muted);
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        transition: 0.3s;
+        opacity: 0;
+        transform: translateX(-20px);
+      }
+
+      .service-row:hover .service-name {
+        color: var(--neon-violet);
+        text-shadow: 0 0 15px rgba(157, 0, 255, 0.4);
+        transform: skewX(-5deg);
+      }
+      .service-row:hover .service-desc {
+        opacity: 1;
+        transform: translateX(0);
+        color: white;
+      }
+
+      /* --- NEW: STICKY PROCESS SECTION --- */
+      .process-wrapper {
+        display: flex;
+        padding: 150px 5%;
+        border-bottom: 1px solid var(--border-color);
+        position: relative;
+        align-items: flex-start;
+      }
+      .process-left {
+        width: 40%;
+        position: sticky;
+        top: 150px;
+      }
+      .process-left h2 {
+        font-family: var(--font-display);
+        font-size: 4rem;
+        text-transform: uppercase;
+        line-height: 1;
+        margin-bottom: 20px;
+      }
+      .process-left p {
+        color: var(--text-muted);
+        font-size: 1.1rem;
+        line-height: 1.6;
+        max-width: 300px;
+      }
+
+      .process-right {
+        width: 60%;
+        display: flex;
+        flex-direction: column;
+        gap: 100px;
+        padding-top: 50px;
+      }
+      .process-step {
+        border-left: 1px solid var(--border-color);
+        padding-left: 40px;
+        position: relative;
+      }
+      .process-step::before {
+        content: "";
+        position: absolute;
+        left: -5px;
+        top: 0;
+        width: 10px;
+        height: 10px;
+        background: var(--neon-violet);
+        border-radius: 50%;
+        box-shadow: 0 0 10px var(--neon-violet);
+      }
+      .p-num {
+        font-family: var(--font-display);
+        font-size: 1rem;
+        color: var(--neon-violet);
+        display: block;
+        margin-bottom: 10px;
+      }
+      .p-title {
+        font-family: var(--font-serif);
+        font-size: 3rem;
+        margin-bottom: 20px;
+        color: white;
+      }
+      .p-desc {
+        color: var(--text-muted);
+        font-size: 1.1rem;
+        line-height: 1.7;
+      }
+
+      /* --- NEW: INTERACTIVE ACCORDION (THE EDGE) --- */
+      .accordion-section {
+        padding: 150px 5%;
+        border-bottom: 1px solid var(--border-color);
+        max-width: 1200px;
+        margin: 0 auto;
+      }
+      .acc-header {
+        text-align: center;
+        margin-bottom: 80px;
+      }
+      .acc-header h2 {
+        font-family: var(--font-display);
+        font-size: 3rem;
+        text-transform: uppercase;
+      }
+
+      .acc-item {
+        border-bottom: 1px solid var(--border-color);
+      }
+      .acc-title {
+        padding: 40px 0;
+        font-family: var(--font-serif);
+        font-size: 2rem;
+        color: white;
+        cursor: none;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        transition: color 0.3s;
+      }
+      .acc-title:hover {
+        color: var(--neon-violet);
+      }
+      .acc-icon {
+        font-family: var(--font-sans);
+        font-size: 2rem;
+        font-weight: 300;
+        transition: transform 0.4s ease;
+        color: var(--text-muted);
+      }
+      .acc-content {
+        height: 0;
+        overflow: hidden;
+        color: var(--text-muted);
+        font-size: 1.1rem;
+        line-height: 1.8;
+      }
+      .acc-inner {
+        padding-bottom: 40px;
+        max-width: 800px;
+      }
+
+      .acc-item.active .acc-icon {
+        transform: rotate(45deg);
+        color: var(--neon-violet);
+      }
+
+      /* FOOTER */
+      .footer {
+        padding: 100px 5%;
+        text-align: center;
+      }
+      .big-link {
+        font-family: var(--font-display);
+        font-size: 5vw;
+        line-height: 1;
+        text-transform: uppercase;
+        display: inline-block;
+        margin-bottom: 50px;
+        color: white !important;
+        position: relative;
+        cursor: none;
+      }
+      .big-link::after {
+        content: "";
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        width: 0%;
+        height: 3px;
+        background-color: var(--neon-violet);
+        transition: width 0.5s;
+      }
+      .big-link:hover::after {
+        width: 100%;
+      }
+      .footer-socials {
+        display: flex;
+        justify-content: center;
+        gap: 40px;
+        margin-bottom: 40px;
+      }
+      .social-link {
+        font-size: 0.9rem;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        color: var(--text-muted) !important;
+        transition: color 0.3s;
+        cursor: none;
+      }
+      .social-link:hover {
+        color: var(--neon-violet) !important;
+        text-shadow: 0 0 10px var(--neon-violet);
+      }
+
+      /* RESPONSIVE */
+      @media (max-width: 1024px) {
+        .work-grid {
+          gap: 40px;
+          padding-top: 100px;
+        }
+        .work-img-box {
+          height: 500px;
+        }
+        .work-item:nth-child(even) {
+          margin-top: 100px;
+        }
+        .process-wrapper {
+          flex-direction: column;
+        }
+        .process-left {
+          width: 100%;
+          position: relative;
+          top: 0;
+          margin-bottom: 60px;
+        }
+        .process-right {
+          width: 100%;
+          padding-top: 0;
+        }
+        .service-name {
+          font-size: 2rem;
+        }
+      }
+      @media (max-width: 768px) {
+        .nav-links {
+          display: none;
+        }
+        .hamburger {
+          display: block;
+        }
+        .work-grid {
+          grid-template-columns: 1fr;
+          gap: 60px;
+          padding-top: 50px;
+        }
+        .work-item:nth-child(even) {
+          margin-top: 0;
+        }
+        .work-img-box {
+          height: 60vh;
+        }
+        .service-row {
+          flex-direction: column;
+          align-items: flex-start;
+          gap: 20px;
+        }
+        .service-num {
+          width: auto;
+        }
+        .service-desc {
+          opacity: 1;
+          transform: none;
+        }
+        .manifesto-text {
+          font-size: 1.8rem;
+        }
+        .acc-title {
+          font-size: 1.5rem;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="preloader">
+      <div class="loader-text">VELVET WIRE</div>
+      <div class="loader-bar-bg"><div class="loader-bar"></div></div>
+    </div>
+
+    <div class="bg-grid"></div>
+    <div class="spotlight"></div>
+
+    <div class="cursor-dot" data-cursor-dot></div>
+    <div class="cursor-outline" data-cursor-outline></div>
+
+    <nav>
+      <div class="logo">VELVET WIRE<span>.</span></div>
+      <div class="nav-links">
+        <a href="#work" class="nav-item" data-text="Portfolio"
+          ><span>Portfolio</span></a
+        >
+        <a href="#services" class="nav-item" data-text="Expertise"
+          ><span>Expertise</span></a
+        >
+        <a href="#process" class="nav-item" data-text="Process"
+          ><span>Process</span></a
+        >
+        <a href="#contact" class="nav-item" data-text="Contact"
+          ><span>Contact</span></a
+        >
+      </div>
+      <div class="hamburger">MENU</div>
+    </nav>
+
+    <div class="content-layer">
+      <header class="hero">
+        <div class="hero-label">We Solve Visibility Problems</div>
+        <h1 class="hero-title">
+          <div class="line"><span>Identity</span></div>
+          <div class="line"><span>& Impact</span></div>
+        </h1>
+        <div class="cta-container">
+          <a href="#contact" class="magnetic-btn">
+            <span class="btn-fill"></span>
+            <span class="btn-text">Start The Transformation</span>
+          </a>
+        </div>
+      </header>
+
+      <section class="manifesto-section">
+        <p class="manifesto-text" id="manifesto">
+          In a digital world full of noise, the greatest risk is blending in.
+          Your brand deserves more than a template. Born in Marrakech, we forge
+          digital identities that demand attention and convert visitors into
+          believers.
+        </p>
+      </section>
+
+      <section id="work" class="work-grid">
+        <a href="noir-clothing/index.html" target="_blank" class="work-item">
+          <div class="work-img-box">
+            <div class="hover-badge">View Project</div>
+            <div class="parallax-wrap">
+              <img src="noir.png" class="work-img" alt="Noir Fashion" />
+              <div class="work-tint"></div>
+            </div>
+          </div>
+          <div class="work-details">
+            <h3 class="work-title">Noir Archive</h3>
+            <span class="work-cat">Fashion E-Commerce</span>
+          </div>
+        </a>
+
+        <a href="saffron/index.html" target="_blank" class="work-item">
+          <div class="work-img-box">
+            <div class="hover-badge">View Project</div>
+            <div class="parallax-wrap">
+              <img src="saffron.png" class="work-img" alt="Saffron" />
+              <div class="work-tint"></div>
+            </div>
+          </div>
+          <div class="work-details">
+            <h3 class="work-title">Saffron</h3>
+            <span class="work-cat">Fine Dining</span>
+          </div>
+        </a>
+
+        <a href="residence/index.html" target="_blank" class="work-item">
+          <div class="work-img-box">
+            <div class="hover-badge">View Project</div>
+            <div class="parallax-wrap">
+              <img src="residence.png" class="work-img" alt="Aura" />
+              <div class="work-tint"></div>
+            </div>
+          </div>
+          <div class="work-details">
+            <h3 class="work-title">Aura Residences</h3>
+            <span class="work-cat">Luxury Real Estate</span>
+          </div>
+        </a>
+
+        <a href="celeste/index.html" target="_blank" class="work-item">
+          <div class="work-img-box">
+            <div class="hover-badge">View Project</div>
+            <div class="parallax-wrap">
+              <img src="celeste.png" class="work-img" alt="Celeste" />
+              <div class="work-tint"></div>
+            </div>
+          </div>
+          <div class="work-details">
+            <h3 class="work-title">Céleste Paris</h3>
+            <span class="work-cat">Editorial Beauty</span>
+          </div>
+        </a>
+      </section>
+
+      <section id="services" class="services-list">
+        <div class="services-header">Core Competencies</div>
+
+        <div class="service-row">
+          <span class="service-num">01</span>
+          <div class="service-text">
+            <span class="service-name">Digital Strategy</span>
+            <span class="service-desc"
+              >Positioning • Audience Research • Brand Architecture</span
+            >
+          </div>
+        </div>
+
+        <div class="service-row">
+          <span class="service-num">02</span>
+          <div class="service-text">
+            <span class="service-name">Immersive Web</span>
+            <span class="service-desc"
+              >UI/UX Design • Motion Graphics • E-Commerce</span
+            >
+          </div>
+        </div>
+
+        <div class="service-row">
+          <span class="service-num">03</span>
+          <div class="service-text">
+            <span class="service-name">Conversion Systems</span>
+            <span class="service-desc"
+              >Performance Optimization • Sales Funnels • Analytics</span
+            >
+          </div>
+        </div>
+      </section>
+
+      <section id="process" class="process-wrapper">
+        <div class="process-left">
+          <h2>How We Build.</h2>
+          <p>
+            We don't guess. We execute a proven system designed to elevate your
+            authority and maximize impact.
+          </p>
+        </div>
+        <div class="process-right">
+          <div class="process-step">
+            <span class="p-num">PHASE 01</span>
+            <h3 class="p-title">Discovery & Logic</h3>
+            <p class="p-desc">
+              We start by tearing down the noise. We analyze your market, study
+              your competitors, and find the singular narrative that makes your
+              brand impossible to ignore.
+            </p>
+          </div>
+          <div class="process-step">
+            <span class="p-num">PHASE 02</span>
+            <h3 class="p-title">Aesthetics & Code</h3>
+            <p class="p-desc">
+              Design meets engineering. We craft bespoke visual identities and
+              write clean, high-performance code to ensure your digital presence
+              is not just beautiful, but lightning fast.
+            </p>
+          </div>
+          <div class="process-step">
+            <span class="p-num">PHASE 03</span>
+            <h3 class="p-title">Launch & Scale</h3>
+            <p class="p-desc">
+              Deploying the asset is just the beginning. We optimize for
+              conversion, ensuring that the traffic your brand receives turns
+              into measurable business growth.
+            </p>
+          </div>
+        </div>
+      </section>
+
+      <section class="accordion-section">
+        <div class="acc-header">
+          <h2>The Edge</h2>
+        </div>
+
+        <div class="acc-item">
+          <div class="acc-title interactable">
+            Why choose Velvet Wire? <span class="acc-icon">+</span>
+          </div>
+          <div class="acc-content">
+            <div class="acc-inner">
+              We bridge the gap between design agencies and development houses.
+              You get the aesthetic vision of an art director combined with the
+              robust technical execution of a senior software engineer. No
+              templates, no compromises.
+            </div>
+          </div>
+        </div>
+
+        <div class="acc-item">
+          <div class="acc-title interactable">
+            What is the typical timeline? <span class="acc-icon">+</span>
+          </div>
+          <div class="acc-content">
+            <div class="acc-inner">
+              Quality takes time. A standard digital transformation (Branding +
+              Custom Web Experience) takes between 4 to 8 weeks, depending on
+              complexity, e-commerce requirements, and asset generation.
+            </div>
+          </div>
+        </div>
+
+        <div class="acc-item">
+          <div class="acc-title interactable">
+            Do you work with global clients? <span class="acc-icon">+</span>
+          </div>
+          <div class="acc-content">
+            <div class="acc-inner">
+              Yes. While based in Marrakech, our infrastructure and
+              communication channels are built for international collaboration.
+              We currently serve clients across Europe, the US, and the MENA
+              region.
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <footer id="contact" class="footer">
+        <h2
+          style="
+            font-family: &quot;Syncopate&quot;;
+            font-size: 2rem;
+            margin-bottom: 30px;
+          "
+        >
+          Ready to dominate your niche?
+        </h2>
+        <a href="mailto:hello@velvetwire.agency" class="big-link"
+          >Initiate Contact</a
+        >
+        <div class="footer-socials">
+          <a href="#" class="social-link">Instagram</a>
+          <a href="#" class="social-link">LinkedIn</a>
+          <a href="#" class="social-link">Twitter</a>
+        </div>
+        <p style="color: #444; margin-top: 10px; font-size: 0.8rem">
+          © 2026 VELVET WIRE. ALL RIGHTS RESERVED.
+        </p>
+      </footer>
+    </div>
+
+    <script>
+      gsap.registerPlugin(ScrollTrigger);
+
+      // PRELOADER
+      const tl = gsap.timeline();
+      tl.to(".loader-bar", {
+        width: "100%",
+        duration: 1.5,
+        ease: "power2.inOut",
+      })
+        .to(
+          ".loader-text",
+          {
+            opacity: 1,
+            color: "white",
+            textShadow: "0 0 20px #9D00FF",
+            duration: 0.5,
+          },
+          "-=0.5",
+        )
+        .to(
+          ".preloader",
+          { yPercent: -100, duration: 1.2, ease: "power4.inOut" },
+          "+=0.3",
+        )
+        .from(".hero-label", { opacity: 0, y: 20, duration: 1 }, "-=0.5")
+        .to(
+          ".hero-title .line span",
+          { y: 0, stagger: 0.1, duration: 1.2, ease: "power4.out" },
+          "-=0.8",
+        )
+        .to(".cta-container", { opacity: 1, y: 0, duration: 1 }, "-=0.8");
+
+      // NEW: KINETIC TEXT REVEAL (MANIFESTO)
+      // This changes the text color from dim to bright white as you scroll past it
+      gsap.to("#manifesto", {
+        color: "#ffffff",
+        scrollTrigger: {
+          trigger: ".manifesto-section",
+          start: "top 60%",
+          end: "bottom 80%",
+          scrub: true,
+        },
+      });
+
+      // COLLAGE GSAP ANIMATIONS
+      gsap.utils.toArray(".work-item").forEach((item) => {
+        gsap.from(item, {
+          scrollTrigger: { trigger: item, start: "top 85%" },
+          y: 80,
+          opacity: 0,
+          duration: 1,
+          ease: "power3.out",
+        });
+        const wrap = item.querySelector(".parallax-wrap");
+        gsap.to(wrap, {
+          scrollTrigger: {
+            trigger: item,
+            start: "top bottom",
+            end: "bottom top",
+            scrub: true,
+          },
+          yPercent: 30,
+          ease: "none",
+        });
+      });
+
+      // ACCORDION LOGIC WITH GSAP
+      const accordions = document.querySelectorAll(".acc-item");
+      accordions.forEach((acc) => {
+        const title = acc.querySelector(".acc-title");
+        const content = acc.querySelector(".acc-content");
+
+        title.addEventListener("click", () => {
+          const isOpen = acc.classList.contains("active");
+
+          // Close all others
+          accordions.forEach((otherAcc) => {
+            otherAcc.classList.remove("active");
+            gsap.to(otherAcc.querySelector(".acc-content"), {
+              height: 0,
+              duration: 0.4,
+              ease: "power2.out",
+            });
+          });
+
+          // Open clicked if it wasn't open
+          if (!isOpen) {
+            acc.classList.add("active");
+            gsap.set(content, { height: "auto" }); // Get natural height
+            const fullHeight = content.offsetHeight;
+            gsap.set(content, { height: 0 }); // Reset to 0
+            gsap.to(content, {
+              height: fullHeight,
+              duration: 0.4,
+              ease: "power2.out",
+            }); // Animate to natural height
+          }
+        });
+      });
+
+      // PROCESS STEP FADE IN
+      gsap.utils.toArray(".process-step").forEach((step) => {
+        gsap.from(step, {
+          scrollTrigger: { trigger: step, start: "top 80%" },
+          x: 50,
+          opacity: 0,
+          duration: 0.8,
+          ease: "power2.out",
+        });
+      });
+
+      // CURSOR EFFECTS
+      const spotlight = document.querySelector(".spotlight");
+      const cursorDot = document.querySelector("[data-cursor-dot]");
+      const cursorOutline = document.querySelector("[data-cursor-outline]");
+
+      window.addEventListener("mousemove", (e) => {
+        spotlight.style.setProperty("--x", `${e.clientX}px`);
+        spotlight.style.setProperty("--y", `${e.clientY}px`);
+        gsap.to(cursorDot, { x: e.clientX, y: e.clientY, duration: 0.1 });
+        gsap.to(cursorOutline, {
+          x: e.clientX,
+          y: e.clientY,
+          duration: 0.5,
+          ease: "power2.out",
+        });
+      });
+
+      document
+        .querySelectorAll("a, .service-row, .magnetic-btn, .interactable")
+        .forEach((el) => {
+          el.addEventListener("mouseenter", () => {
+            gsap.to(cursorOutline, {
+              scale: 2,
+              backgroundColor: "rgba(157,0,255,0.1)",
+              borderColor: "#9D00FF",
+            });
+          });
+          el.addEventListener("mouseleave", () => {
+            gsap.to(cursorOutline, {
+              scale: 1,
+              backgroundColor: "transparent",
+              borderColor: "rgba(255,255,255,0.4)",
+            });
+          });
+        });
+
+      // MAGNETIC BUTTONS
+      document.querySelectorAll(".magnetic-btn").forEach((btn) => {
+        btn.addEventListener("mousemove", (e) => {
+          const rect = btn.getBoundingClientRect();
+          gsap.to(btn, {
+            x: (e.clientX - rect.left - rect.width / 2) * 0.3,
+            y: (e.clientY - rect.top - rect.height / 2) * 0.3,
+            duration: 0.3,
+          });
+        });
+        btn.addEventListener("mouseleave", () => {
+          gsap.to(btn, { x: 0, y: 0, duration: 0.3 });
+        });
+      });
+    </script>
+  </body>
+</html>

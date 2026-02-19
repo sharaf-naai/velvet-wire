@@ -1,0 +1,657 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>NOIR | ACID DROP</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&family=Syncopate:wght@700&display=swap"
+      rel="stylesheet"
+    />
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+
+    <style>
+      :root {
+        --bg-color: #000000;
+        --text-color: #ffffff;
+        --acid-green: #ccff00; /* TOXIC NEON */
+        --font-display: "Syncopate", sans-serif;
+        --font-body: "Space Grotesk", sans-serif;
+      }
+
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+      ::selection {
+        background: var(--acid-green);
+        color: black;
+      }
+
+      body {
+        background-color: var(--bg-color);
+        color: var(--text-color);
+        font-family: var(--font-body);
+        overflow-x: hidden;
+        cursor: none;
+      }
+
+      a {
+        text-decoration: none;
+        color: inherit;
+        cursor: none;
+      }
+      img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        display: block;
+      }
+
+      /* --- UI ELEMENTS --- */
+      .noise {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: url('data:image/svg+xml,%3Csvg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg"%3E%3Cfilter id="noiseFilter"%3E%3CfeTurbulence type="fractalNoise" baseFrequency="0.8" numOctaves="3" stitchTiles="stitch"/%3E%3C/filter%3E%3Crect width="100%25" height="100%25" filter="url(%23noiseFilter)"/%3E%3C/svg%3E');
+        opacity: 0.08;
+        pointer-events: none;
+        z-index: 9000;
+      }
+
+      /* CUSTOM CURSOR (SNAPPY) */
+      .cursor {
+        width: 15px;
+        height: 15px;
+        background: var(--acid-green);
+        border-radius: 50%;
+        position: fixed;
+        pointer-events: none;
+        z-index: 9999;
+        transform: translate(-50%, -50%);
+        mix-blend-mode: difference;
+      }
+      body.hover-active .cursor {
+        width: 60px;
+        height: 60px;
+        border-radius: 0;
+      }
+
+      /* NAV */
+      nav {
+        position: fixed;
+        top: 0;
+        width: 100%;
+        padding: 30px 5%;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        z-index: 100;
+        mix-blend-mode: exclusion;
+      }
+      .brand {
+        font-family: var(--font-display);
+        font-size: 2rem;
+        color: var(--acid-green);
+      }
+      .nav-links {
+        display: flex;
+        gap: 30px;
+        font-weight: 700;
+        text-transform: uppercase;
+      }
+      .stash-btn {
+        font-weight: 700;
+        text-transform: uppercase;
+        border: 1px solid var(--acid-green);
+        padding: 10px 20px;
+        color: var(--acid-green);
+        transition: 0.3s;
+      }
+      .stash-btn:hover {
+        background: var(--acid-green);
+        color: black;
+      }
+
+      /* HERO */
+      .hero {
+        height: 100vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        position: relative;
+        border-bottom: 1px solid #333;
+        overflow: hidden;
+      }
+      .hero-video {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        opacity: 0.5;
+        filter: grayscale(100%) contrast(1.2);
+        z-index: -1;
+      }
+      .hero-title {
+        font-family: var(--font-display);
+        font-size: 12vw;
+        line-height: 0.85;
+        text-align: center;
+        text-transform: uppercase;
+        color: transparent;
+        -webkit-text-stroke: 2px var(--acid-green);
+        z-index: 2;
+      }
+      .filled-text {
+        color: var(--acid-green);
+        -webkit-text-stroke: 0;
+      }
+
+      /* MARQUEE */
+      .marquee {
+        background: var(--acid-green);
+        color: black;
+        padding: 15px 0;
+        overflow: hidden;
+        white-space: nowrap;
+        font-family: var(--font-display);
+        font-weight: 700;
+        font-size: 1.2rem;
+      }
+      .marquee-content {
+        display: inline-block;
+        animation: scroll 20s linear infinite;
+      }
+      @keyframes scroll {
+        0% {
+          transform: translateX(0);
+        }
+        100% {
+          transform: translateX(-50%);
+        }
+      }
+
+      /* THE MANIFESTO (Brand Story) */
+      .manifesto {
+        padding: 150px 10%;
+        border-bottom: 1px solid #222;
+      }
+      .manifesto-title {
+        font-family: var(--font-display);
+        font-size: 1.5rem;
+        color: var(--acid-green);
+        margin-bottom: 30px;
+      }
+      .manifesto-text {
+        font-family: var(--font-display);
+        font-size: clamp(2rem, 4vw, 3.5rem);
+        line-height: 1.3;
+        text-transform: uppercase;
+        color: white;
+      }
+      .highlight {
+        color: var(--acid-green);
+      }
+
+      /* LOOKBOOK (Editorial) */
+      .lookbook {
+        padding: 100px 5%;
+        border-bottom: 1px solid #222;
+      }
+      .lookbook-grid {
+        display: grid;
+        grid-template-columns: 1.5fr 1fr;
+        gap: 20px;
+        height: 800px;
+      }
+      .look-big {
+        height: 100%;
+        position: relative;
+        overflow: hidden;
+        border: 1px solid #333;
+      }
+      .look-small-container {
+        display: flex;
+        flex-direction: column;
+        gap: 20px;
+      }
+      .look-small {
+        height: 50%;
+        position: relative;
+        overflow: hidden;
+        border: 1px solid #333;
+      }
+
+      .look-overlay {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.6);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        opacity: 0;
+        transition: 0.4s;
+      }
+      .look-text {
+        font-family: var(--font-display);
+        font-size: 2rem;
+        color: var(--acid-green);
+        transform: translateY(20px);
+        transition: 0.4s;
+      }
+      .look-big:hover .look-overlay,
+      .look-small:hover .look-overlay {
+        opacity: 1;
+      }
+      .look-big:hover .look-text,
+      .look-small:hover .look-text {
+        transform: translateY(0);
+      }
+
+      /* THE DROP (Products) */
+      .drop-section {
+        padding: 100px 5%;
+        border-bottom: 1px solid #222;
+      }
+      .section-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-end;
+        margin-bottom: 50px;
+        border-bottom: 1px solid #333;
+        padding-bottom: 20px;
+      }
+      .section-title {
+        font-family: var(--font-display);
+        font-size: 4rem;
+        color: white;
+      }
+      .view-all {
+        color: var(--acid-green);
+        font-size: 1.2rem;
+        text-transform: uppercase;
+        font-weight: 700;
+        border-bottom: 2px solid var(--acid-green);
+        padding-bottom: 5px;
+      }
+
+      .drop-grid {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 20px;
+      }
+      .drop-item {
+        position: relative;
+        height: 700px;
+        border: 1px solid #333;
+        overflow: hidden;
+        cursor: none;
+        display: block;
+      }
+      .drop-img {
+        width: 100%;
+        height: 100%;
+        filter: grayscale(100%);
+        transition: 0.5s;
+      }
+      .drop-overlay {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: var(--acid-green);
+        opacity: 0;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        transition: opacity 0.3s;
+      }
+      .drop-name {
+        font-family: var(--font-display);
+        font-size: 3rem;
+        color: black;
+        transform: translateY(50px);
+        transition: 0.4s;
+      }
+      .drop-price {
+        font-family: var(--font-body);
+        font-size: 1.5rem;
+        color: black;
+        font-weight: 700;
+        transform: translateY(50px);
+        transition: 0.4s delay 0.1s;
+      }
+
+      .drop-item:hover .drop-img {
+        transform: scale(1.1);
+      }
+      .drop-item:hover .drop-overlay {
+        opacity: 0.9;
+      }
+      .drop-item:hover .drop-name,
+      .drop-item:hover .drop-price {
+        transform: translateY(0);
+      }
+
+      /* NEWSLETTER */
+      .access {
+        padding: 100px 5%;
+        text-align: center;
+        border-bottom: 1px solid #222;
+      }
+      .access-title {
+        font-family: var(--font-display);
+        font-size: 3rem;
+        margin-bottom: 20px;
+      }
+      .access-form {
+        max-width: 500px;
+        margin: 0 auto;
+        display: flex;
+        border-bottom: 2px solid white;
+      }
+      .access-input {
+        flex: 1;
+        background: transparent;
+        border: none;
+        padding: 20px;
+        color: white;
+        font-family: var(--font-body);
+        font-size: 1.2rem;
+        outline: none;
+      }
+      .access-btn {
+        background: transparent;
+        border: none;
+        color: var(--acid-green);
+        font-family: var(--font-display);
+        font-size: 1.2rem;
+        cursor: none;
+      }
+
+      /* FOOTER */
+      .footer {
+        padding: 80px 5%;
+        text-align: center;
+        background: #050505;
+      }
+      .footer-big {
+        font-family: var(--font-display);
+        font-size: 18vw;
+        color: #111;
+        line-height: 0.8;
+        transition: color 0.3s;
+      }
+      .footer:hover .footer-big {
+        color: var(--acid-green);
+      }
+      .footer-links {
+        display: flex;
+        justify-content: center;
+        gap: 40px;
+        margin-top: 50px;
+        text-transform: uppercase;
+        font-weight: 700;
+        color: #666;
+      }
+
+      @media (max-width: 768px) {
+        .hero-title {
+          font-size: 15vw;
+        }
+        .nav-links {
+          display: none;
+        }
+        .lookbook-grid {
+          display: flex;
+          flex-direction: column;
+          height: auto;
+        }
+        .look-big,
+        .look-small {
+          height: 400px;
+        }
+        .drop-grid {
+          grid-template-columns: 1fr;
+        }
+        .drop-item {
+          height: 500px;
+        }
+        .section-title {
+          font-size: 2.5rem;
+        }
+        .cursor {
+          display: none;
+        }
+        body {
+          cursor: auto;
+        }
+        .access-form {
+          flex-direction: column;
+          border-bottom: none;
+          gap: 20px;
+        }
+        .access-input {
+          border-bottom: 1px solid white;
+          text-align: center;
+        }
+        .access-btn {
+          border: 1px solid var(--acid-green);
+          padding: 15px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="noise"></div>
+    <div class="cursor"></div>
+
+    <nav>
+      <div class="brand">NOIR.</div>
+      <div class="nav-links">
+        <a href="#manifesto" class="interactable">Mission</a>
+        <a href="#lookbook" class="interactable">Lookbook</a>
+        <a href="products.html" class="interactable">Shop All</a>
+      </div>
+      <a href="products.html" class="stash-btn interactable">STASH (0)</a>
+    </nav>
+
+    <header class="hero">
+      <div class="hero-video">
+        <img src="hero.png" alt="Hero Background" />
+      </div>
+      <h1 class="hero-title">
+        ACID<br /><span class="filled-text">DROP</span><br />V.04
+      </h1>
+    </header>
+
+    <div class="marquee">
+      <div class="marquee-content">
+        NEW ARRIVALS /// WORLDWIDE SHIPPING /// LIMITED STOCK /// NO RESTOCKS
+        /// ACID DROP V.04 /// NEW ARRIVALS /// WORLDWIDE SHIPPING /// LIMITED
+        STOCK /// NO RESTOCKS /// ACID DROP V.04 ///
+      </div>
+    </div>
+
+    <section id="manifesto" class="manifesto">
+      <h4 class="manifesto-title">/// THE MISSION</h4>
+      <div class="manifesto-text">
+        We don't design clothes. We design
+        <span class="highlight">armor</span> for the modern void. Born in the
+        underground, raised in the shadows.
+        <span class="highlight">Silence is the ultimate luxury.</span>
+      </div>
+    </section>
+
+    <section id="lookbook" class="lookbook">
+      <div class="section-header">
+        <h2 class="section-title">EDITORIAL<br />CAMPAIGN</h2>
+      </div>
+      <div class="lookbook-grid">
+        <div class="look-big interactable">
+          <img
+            src="https://images.unsplash.com/photo-1506634572416-48cdfe530110?q=80&w=2574&auto=format&fit=crop"
+            alt="Void Walker"
+          />
+          <div class="look-overlay">
+            <span class="look-text">VOID WALKER</span>
+          </div>
+        </div>
+        <div class="look-small-container">
+          <div class="look-small interactable">
+            <img
+              src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?q=80&w=2864&auto=format&fit=crop"
+              alt="Neon Soul"
+            />
+            <div class="look-overlay">
+              <span class="look-text">NEON SOUL</span>
+            </div>
+          </div>
+          <div class="look-small interactable">
+            <img
+              src="https://images.unsplash.com/photo-1611558709796-ca562846383e?q=80&w=2574&auto=format&fit=crop"
+              alt="Night Shift"
+            />
+            <div class="look-overlay">
+              <span class="look-text">NIGHT SHIFT</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="drop-section">
+      <div class="section-header">
+        <h2 class="section-title">LATEST<br />HEAT</h2>
+        <a href="products.html" class="view-all interactable">VIEW ALL -></a>
+      </div>
+
+      <div class="drop-grid">
+        <a href="products.html" class="drop-item interactable">
+          <img
+            src="https://images.unsplash.com/photo-1551488852-d81a25793da8?q=80&w=2670&auto=format&fit=crop"
+            class="drop-img"
+            alt="Acid Puffer"
+          />
+          <div class="drop-overlay">
+            <span class="drop-name">ACID PUFFER</span>
+            <span class="drop-price">$450</span>
+          </div>
+        </a>
+        <a href="products.html" class="drop-item interactable">
+          <img
+            src="https://images.unsplash.com/photo-1620799140408-ed5341cd2431?q=80&w=2672&auto=format&fit=crop"
+            class="drop-img"
+            alt="Toxic Tee"
+          />
+          <div class="drop-overlay">
+            <span class="drop-name">TOXIC TEE</span>
+            <span class="drop-price">$120</span>
+          </div>
+        </a>
+        <a href="products.html" class="drop-item interactable">
+          <img
+            src="https://images.unsplash.com/photo-1552346154-21d32810aba3?q=80&w=2670&auto=format&fit=crop"
+            class="drop-img"
+            alt="Sneaker V1"
+          />
+          <div class="drop-overlay">
+            <span class="drop-name">SNEAKER V1</span>
+            <span class="drop-price">$890</span>
+          </div>
+        </a>
+        <a href="products.html" class="drop-item interactable">
+          <img
+            src="https://images.unsplash.com/photo-1504198458649-3128b932f49e?q=80&w=2574&auto=format&fit=crop"
+            class="drop-img"
+            alt="Cargo Pant"
+          />
+          <div class="drop-overlay">
+            <span class="drop-name">CARGO PANT</span>
+            <span class="drop-price">$320</span>
+          </div>
+        </a>
+      </div>
+    </section>
+
+    <section class="access">
+      <h2 class="access-title">GET EARLY ACCESS</h2>
+      <div class="access-form interactable">
+        <input
+          type="email"
+          placeholder="ENTER YOUR EMAIL"
+          class="access-input"
+        />
+        <button class="access-btn">JOIN</button>
+      </div>
+    </section>
+
+    <footer class="footer">
+      <div class="footer-big">NOIR</div>
+      <div class="footer-links">
+        <span>Instagram</span>
+        <span>Twitter</span>
+        <span>Soundcloud</span>
+      </div>
+      <p style="color: #666; margin-top: 50px">© 2025 VELVET WIRE AGENCY</p>
+    </footer>
+
+    <script>
+      gsap.registerPlugin(ScrollTrigger);
+
+      // SNAP CURSOR LOGIC (FAST)
+      const cursor = document.querySelector(".cursor");
+
+      // Only run on desktop
+      if (window.matchMedia("(hover: hover)").matches) {
+        document.addEventListener("mousemove", (e) => {
+          cursor.style.left = e.clientX + "px";
+          cursor.style.top = e.clientY + "px";
+        });
+
+        document.querySelectorAll(".interactable").forEach((el) => {
+          el.addEventListener("mouseenter", () =>
+            document.body.classList.add("hover-active"),
+          );
+          el.addEventListener("mouseleave", () =>
+            document.body.classList.remove("hover-active"),
+          );
+        });
+      }
+
+      // HERO ANIMATION
+      gsap.from(".hero-title", {
+        y: 100,
+        opacity: 0,
+        duration: 1.5,
+        ease: "power4.out",
+      });
+
+      // SCROLL REVEALS
+      gsap.utils
+        .toArray(".drop-item, .look-big, .look-small")
+        .forEach((item) => {
+          gsap.from(item, {
+            y: 50,
+            opacity: 0,
+            duration: 0.8,
+            scrollTrigger: { trigger: item, start: "top 85%" },
+          });
+        });
+    </script>
+  </body>
+</html>

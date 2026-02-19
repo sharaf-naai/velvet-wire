@@ -1,0 +1,776 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>CÉLESTE | Botanical Skincare</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;1,300;1,400&family=Jost:wght@300;400;500&display=swap"
+      rel="stylesheet"
+    />
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+
+    <style>
+      /* --- CÉLESTE DESIGN SYSTEM --- */
+      :root {
+        --bg-base: #f7f6f2;
+        --bg-alt: #ebe8e1;
+        --text-main: #2a2e26;
+        --accent-sage: #9ca993;
+
+        --font-serif: "Cormorant Garamond", serif;
+        --font-sans: "Jost", sans-serif;
+      }
+
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+      ::selection {
+        background: var(--accent-sage);
+        color: white;
+      }
+
+      body {
+        background-color: var(--bg-base);
+        color: var(--text-main);
+        font-family: var(--font-sans);
+        overflow-x: hidden;
+        cursor: none;
+      }
+      a,
+      button {
+        text-decoration: none;
+        color: inherit;
+        cursor: none;
+        border: none;
+        background: none;
+      }
+
+      /* --- DELICATE CURSOR --- */
+      .cursor {
+        width: 40px;
+        height: 40px;
+        border: 1px solid rgba(42, 46, 38, 0.3);
+        border-radius: 50%;
+        position: fixed;
+        pointer-events: none;
+        z-index: 9999;
+        transform: translate(-50%, -50%);
+        transition:
+          width 0.3s,
+          height 0.3s,
+          background 0.3s,
+          border-color 0.3s;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+      .cursor::after {
+        content: "";
+        width: 4px;
+        height: 4px;
+        background: var(--text-main);
+        border-radius: 50%;
+        position: absolute;
+        transition: 0.3s;
+      }
+      body.hover-active .cursor {
+        width: 80px;
+        height: 80px;
+        background: rgba(156, 169, 147, 0.1);
+        border-color: var(--accent-sage);
+      }
+      body.hover-active .cursor::after {
+        background: var(--accent-sage);
+      }
+
+      /* --- TYPOGRAPHY --- */
+      h1,
+      h2,
+      h3 {
+        font-family: var(--font-serif);
+        font-weight: 300;
+      }
+      .italic {
+        font-style: italic;
+      }
+      .sans-label {
+        font-family: var(--font-sans);
+        font-size: 0.75rem;
+        text-transform: uppercase;
+        letter-spacing: 3px;
+        color: #666;
+      }
+      .fade-up {
+        opacity: 0;
+        transform: translateY(40px);
+      }
+
+      /* --- NAVIGATION --- */
+      nav {
+        position: fixed;
+        top: 0;
+        width: 100%;
+        padding: 30px 5%;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        z-index: 100;
+        mix-blend-mode: multiply;
+      }
+      .nav-left,
+      .nav-right {
+        flex: 1;
+      }
+      .nav-right {
+        text-align: right;
+      }
+      .logo {
+        flex: 1;
+        text-align: center;
+        font-family: var(--font-serif);
+        font-size: 2rem;
+        letter-spacing: 5px;
+        text-transform: uppercase;
+      }
+      .nav-link {
+        font-size: 0.8rem;
+        letter-spacing: 2px;
+        text-transform: uppercase;
+        cursor: none;
+        position: relative;
+      }
+      .nav-link::after {
+        content: "";
+        position: absolute;
+        bottom: -4px;
+        left: 0;
+        width: 0%;
+        height: 1px;
+        background: var(--text-main);
+        transition: 0.3s;
+      }
+      .nav-link:hover::after {
+        width: 100%;
+      }
+
+      /* --- HERO --- */
+      .hero {
+        height: 100vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        position: relative;
+      }
+      .hero-title {
+        font-size: 8vw;
+        line-height: 0.9;
+        text-align: center;
+        z-index: 2;
+        color: var(--text-main);
+      }
+      .hero-subtitle {
+        position: absolute;
+        bottom: 50px;
+        left: 50%;
+        transform: translateX(-50%);
+        text-align: center;
+      }
+
+      /* --- SPLIT SCREEN EDITORIAL LAYOUT --- */
+      .editorial-split {
+        display: flex;
+        position: relative;
+        background: var(--bg-alt);
+      }
+      .editorial-split.reverse {
+        flex-direction: row-reverse;
+        background: var(--bg-base);
+      }
+      .editorial-split.third {
+        background: #f2efe9;
+      }
+
+      /* LEFT SIDE (STICKY GALLERY) */
+      .split-image-container {
+        width: 50%;
+        height: 100vh;
+        position: sticky;
+        top: 0;
+        overflow: hidden;
+      }
+      .sticky-img {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        opacity: 0;
+        transition:
+          opacity 0.8s ease,
+          transform 1.5s ease;
+        transform: scale(1.05);
+      }
+      .sticky-img.active {
+        opacity: 1;
+        transform: scale(1);
+      }
+
+      /* RIGHT SIDE (SCROLLING CONTENT) */
+      .split-content-container {
+        width: 50%;
+        display: flex;
+        flex-direction: column;
+      }
+      .content-block {
+        height: 100vh;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        padding: 0 15%;
+      }
+
+      .c-title {
+        font-size: 3.5rem;
+        margin: 20px 0;
+        line-height: 1.1;
+      }
+      .c-desc {
+        font-size: 1.1rem;
+        line-height: 1.8;
+        color: #555;
+        margin-bottom: 40px;
+      }
+
+      .ingredient-list {
+        list-style: none;
+        margin-bottom: 30px;
+        border-top: 1px solid rgba(0, 0, 0, 0.1);
+        padding-top: 20px;
+      }
+      .ingredient-list li {
+        display: flex;
+        justify-content: space-between;
+        padding: 10px 0;
+        border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+        font-size: 0.9rem;
+      }
+
+      .add-to-cart-btn {
+        background: var(--text-main);
+        color: var(--bg-base);
+        padding: 18px 40px;
+        font-size: 0.8rem;
+        letter-spacing: 2px;
+        text-transform: uppercase;
+        cursor: none;
+        transition: 0.4s;
+        display: inline-block;
+        width: max-content;
+      }
+      .add-to-cart-btn:hover {
+        background: var(--accent-sage);
+      }
+
+      /* --- SENSORY CAROUSEL --- */
+      .carousel-section {
+        position: relative;
+        height: 100vh;
+        overflow: hidden;
+        background-color: #e8dce5; /* Initial Purple */
+        transition: background-color 1s ease;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+      }
+      .carousel-header {
+        position: absolute;
+        top: 10%;
+        left: 50%;
+        transform: translateX(-50%);
+        text-align: center;
+        width: 100%;
+        z-index: 10;
+      }
+      .carousel-header h2 {
+        font-size: 3rem;
+      }
+
+      .carousel-track {
+        display: flex;
+        width: 100%;
+        height: 60vh;
+        transition: transform 0.8s cubic-bezier(0.77, 0, 0.175, 1);
+      }
+      .carousel-item {
+        min-width: 100vw;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8%;
+        padding: 0 10%;
+      }
+      .c-item-img {
+        width: 30vw;
+        height: 40vw;
+        object-fit: cover;
+        border-radius: 200px 200px 0 0;
+        box-shadow: 0 20px 50px rgba(0, 0, 0, 0.05);
+      }
+      .c-item-text {
+        width: 30vw;
+      }
+
+      .carousel-nav {
+        position: absolute;
+        bottom: 8%;
+        left: 50%;
+        transform: translateX(-50%);
+        display: flex;
+        gap: 20px;
+        z-index: 10;
+      }
+      .nav-arrow {
+        font-family: var(--font-sans);
+        font-size: 1.2rem;
+        cursor: none;
+        color: var(--text-main);
+        border: 1px solid var(--text-main);
+        border-radius: 50%;
+        width: 60px;
+        height: 60px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: 0.3s;
+      }
+      .nav-arrow:hover {
+        background: var(--text-main);
+        color: white;
+      }
+
+      /* --- FOOTER --- */
+      footer {
+        padding: 100px 5% 50px;
+        background: var(--text-main);
+        color: var(--bg-base);
+        text-align: center;
+      }
+      .f-logo {
+        font-family: var(--font-serif);
+        font-size: 3rem;
+        letter-spacing: 5px;
+        margin-bottom: 40px;
+      }
+      .f-links {
+        display: flex;
+        justify-content: center;
+        gap: 40px;
+        margin-bottom: 60px;
+        font-size: 0.8rem;
+        letter-spacing: 2px;
+        text-transform: uppercase;
+      }
+
+      /* RESPONSIVE */
+      @media (max-width: 1024px) {
+        .editorial-split,
+        .editorial-split.reverse {
+          flex-direction: column;
+        }
+        .split-image-container {
+          width: 100%;
+          height: 60vh;
+          position: relative;
+        }
+        .split-content-container {
+          width: 100%;
+        }
+        .content-block {
+          height: auto;
+          padding: 100px 5%;
+        }
+        .carousel-item {
+          flex-direction: column;
+          text-align: center;
+          gap: 30px;
+        }
+        .c-item-img {
+          width: 60vw;
+          height: 60vw;
+          border-radius: 10px;
+        }
+        .c-item-text {
+          width: 80vw;
+        }
+      }
+      @media (max-width: 768px) {
+        .nav-left,
+        .nav-right {
+          display: none;
+        }
+        .logo {
+          text-align: left;
+        }
+        .cursor {
+          display: none;
+        }
+        body {
+          cursor: auto;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="cursor"></div>
+
+    <nav>
+      <div class="nav-left">
+        <span class="nav-link interactable">Shop Collection</span>
+      </div>
+      <div class="logo interactable">CÉLESTE</div>
+      <div class="nav-right">
+        <span class="nav-link interactable">Bag (0)</span>
+      </div>
+    </nav>
+
+    <header class="hero">
+      <h1 class="hero-title fade-up">
+        Botanical.<br /><span class="italic">Ethereal.</span><br />Pure.
+      </h1>
+      <div class="hero-subtitle fade-up">
+        <span class="sans-label">Scroll to experience</span>
+      </div>
+    </header>
+
+    <section class="editorial-split">
+      <div class="split-image-container">
+        <img
+          src="https://images.unsplash.com/photo-1620916566398-39f1143ab7be?q=80&w=2574&auto=format&fit=crop"
+          class="sticky-img active"
+          alt="Serum Bottle"
+        />
+        <img
+          src="https://images.unsplash.com/photo-1556228578-0d85b1a4d571?q=80&w=2574&auto=format&fit=crop"
+          class="sticky-img"
+          alt="Botanical Texture"
+        />
+        <img
+          src="https://images.unsplash.com/photo-1615397323869-703b41e974eb?q=80&w=2670&auto=format&fit=crop"
+          class="sticky-img"
+          alt="Model Skin"
+        />
+      </div>
+      <div class="split-content-container">
+        <div class="content-block">
+          <span class="sans-label">No. 01 — The Elixir</span>
+          <h2 class="c-title">
+            Midnight<br /><span class="italic">Recovery</span> Oil
+          </h2>
+          <p class="c-desc">
+            Formulated to accelerate cellular repair while you sleep. A delicate
+            fusion of cold-pressed botanicals that leave the skin deeply
+            nourished and luminous by dawn.
+          </p>
+          <div class="add-to-cart-btn interactable">Add to Bag — $95</div>
+        </div>
+        <div class="content-block">
+          <span class="sans-label">The Anatomy</span>
+          <h2 class="c-title">
+            Earth's <span class="italic">Rarest</span> Elements.
+          </h2>
+          <ul class="ingredient-list">
+            <li><span>Blue Tansy</span> <span>Anti-inflammatory</span></li>
+            <li><span>Plant Squalane</span> <span>Deep Hydration</span></li>
+            <li><span>Evening Primrose</span> <span>Cellular Repair</span></li>
+          </ul>
+        </div>
+        <div class="content-block">
+          <span class="sans-label">The Ritual</span>
+          <h2 class="c-title">How to <span class="italic">Apply</span></h2>
+          <p class="c-desc">
+            Warm 3-5 drops in the palms of your hands. Breathe in the calming
+            aroma of Moroccan Neroli. Gently press into cleansed and toned skin,
+            focusing on areas of tension.
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <section class="editorial-split reverse">
+      <div class="split-image-container">
+        <img
+          src="https://images.unsplash.com/photo-1617897903246-719242758050?q=80&w=2574&auto=format&fit=crop"
+          class="sticky-img active"
+          alt="Light Serum"
+        />
+        <img
+          src="https://images.unsplash.com/photo-1551028719-00167b16eac5?q=80&w=2574&auto=format&fit=crop"
+          class="sticky-img"
+          alt="Water Texture"
+        />
+        <img
+          src="https://images.unsplash.com/photo-1515377905703-c4788e51af15?q=80&w=2670&auto=format&fit=crop"
+          class="sticky-img"
+          alt="Glowing Skin"
+        />
+      </div>
+      <div class="split-content-container">
+        <div class="content-block">
+          <span class="sans-label">No. 02 — The Treatment</span>
+          <h2 class="c-title">
+            Lumière<br /><span class="italic">Peptide</span> Serum
+          </h2>
+          <p class="c-desc">
+            A weightless, water-gel serum packed with plumping peptides and
+            encapsulated Vitamin C. Instantly floods the skin with hydration
+            while targeting dullness and fine lines over time.
+          </p>
+          <div class="add-to-cart-btn interactable">Add to Bag — $120</div>
+        </div>
+        <div class="content-block">
+          <span class="sans-label">The Anatomy</span>
+          <h2 class="c-title">Clinical <span class="italic">Purity</span>.</h2>
+          <ul class="ingredient-list">
+            <li><span>Vegan Peptides</span> <span>Firming</span></li>
+            <li><span>Vitamin C (THD)</span> <span>Brightening</span></li>
+            <li><span>White Tea Extract</span> <span>Antioxidant</span></li>
+          </ul>
+        </div>
+        <div class="content-block">
+          <span class="sans-label">The Ritual</span>
+          <h2 class="c-title">Morning <span class="italic">Awakening</span></h2>
+          <p class="c-desc">
+            Apply 2 pumps to damp skin immediately after cleansing. Massage
+            upward in sweeping motions. Follow with SPF during the day to lock
+            in the glow.
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <section class="editorial-split third">
+      <div class="split-image-container">
+        <img
+          src="https://images.unsplash.com/photo-1608248543803-ba4f8c70ae0b?q=80&w=2553&auto=format&fit=crop"
+          class="sticky-img active"
+          alt="Clay Jar"
+        />
+        <img
+          src="https://images.unsplash.com/photo-1564595874591-171b3dc921f6?q=80&w=2670&auto=format&fit=crop"
+          class="sticky-img"
+          alt="Clay Texture"
+        />
+        <img
+          src="https://images.unsplash.com/photo-1522337660859-02fbefca4702?q=80&w=2669&auto=format&fit=crop"
+          class="sticky-img"
+          alt="Clean Skin"
+        />
+      </div>
+      <div class="split-content-container">
+        <div class="content-block">
+          <span class="sans-label">No. 03 — The Detox</span>
+          <h2 class="c-title">
+            Terra<br /><span class="italic">Cleansing</span> Clay
+          </h2>
+          <p class="c-desc">
+            A rich, purifying mask that draws out impurities without stripping
+            the skin's natural moisture barrier. Whipped to perfection with
+            soothing matcha and French green clay.
+          </p>
+          <div class="add-to-cart-btn interactable">Add to Bag — $65</div>
+        </div>
+        <div class="content-block">
+          <span class="sans-label">The Anatomy</span>
+          <h2 class="c-title">Deep <span class="italic">Extraction</span>.</h2>
+          <ul class="ingredient-list">
+            <li><span>French Green Clay</span> <span>Pore Refining</span></li>
+            <li><span>Ceremonial Matcha</span> <span>Reduces Redness</span></li>
+            <li><span>Aloe Barbadensis</span> <span>Soothing</span></li>
+          </ul>
+        </div>
+        <div class="content-block">
+          <span class="sans-label">The Ritual</span>
+          <h2 class="c-title">Weekly <span class="italic">Reset</span></h2>
+          <p class="c-desc">
+            Using a soft brush, paint a thin, even layer over the face and neck.
+            Let rest for 10-15 minutes until semi-dry. Rinse with warm water and
+            a muslin cloth.
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <section class="carousel-section" id="sensory-carousel">
+      <div class="carousel-header">
+        <span class="sans-label" style="color: var(--text-main)"
+          >The Sensory Collection</span
+        >
+        <h2 class="italic">Find Your Aura</h2>
+      </div>
+
+      <div class="carousel-track">
+        <div class="carousel-item">
+          <img
+            src="https://images.unsplash.com/photo-1615397323869-703b41e974eb?q=80&w=2670&auto=format&fit=crop"
+            class="c-item-img"
+          />
+          <div class="c-item-text">
+            <h3 class="c-title">Lavender <span class="italic">Cloud</span></h3>
+            <p class="c-desc">
+              A deeply calming night cream that melts into the skin. Scented
+              with wild French lavender and vanilla bean to promote restful
+              sleep.
+            </p>
+          </div>
+        </div>
+        <div class="carousel-item">
+          <img
+            src="https://images.unsplash.com/photo-1556228578-0d85b1a4d571?q=80&w=2574&auto=format&fit=crop"
+            class="c-item-img"
+          />
+          <div class="c-item-text">
+            <h3 class="c-title">Matcha <span class="italic">Dew</span></h3>
+            <p class="c-desc">
+              An invigorating morning mist. Packed with antioxidants, cucumber
+              water, and matcha extract to wake up tired, puffy skin.
+            </p>
+          </div>
+        </div>
+        <div class="carousel-item">
+          <img
+            src="https://images.unsplash.com/photo-1617897903246-719242758050?q=80&w=2574&auto=format&fit=crop"
+            class="c-item-img"
+          />
+          <div class="c-item-text">
+            <h3 class="c-title">Citrus <span class="italic">Glow</span></h3>
+            <p class="c-desc">
+              A radiant body oil infused with sweet orange, neroli, and golden
+              mica. Leaves the skin sun-kissed and deeply moisturized.
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <div class="carousel-nav">
+        <button class="nav-arrow interactable prev-btn">←</button>
+        <button class="nav-arrow interactable next-btn">→</button>
+      </div>
+    </section>
+
+    <footer>
+      <h2 class="f-logo interactable">CÉLESTE</h2>
+      <div class="f-links">
+        <a href="#" class="interactable">Shop</a>
+        <a href="#" class="interactable">About Us</a>
+        <a href="#" class="interactable">Journal</a>
+        <a href="#" class="interactable">Contact</a>
+      </div>
+      <p class="f-copy">
+        © 2026 CÉLESTE PARIS. FORMULATED IN FRANCE. DESIGNED BY VELVET WIRE.
+      </p>
+    </footer>
+
+    <script>
+      gsap.registerPlugin(ScrollTrigger);
+
+      // 1. CURSOR LOGIC
+      const cursor = document.querySelector(".cursor");
+      if (window.matchMedia("(hover: hover)").matches) {
+        document.addEventListener("mousemove", (e) => {
+          gsap.to(cursor, { x: e.clientX, y: e.clientY, duration: 0.1 });
+        });
+        document.querySelectorAll(".interactable").forEach((el) => {
+          el.addEventListener("mouseenter", () =>
+            document.body.classList.add("hover-active"),
+          );
+          el.addEventListener("mouseleave", () =>
+            document.body.classList.remove("hover-active"),
+          );
+        });
+      }
+
+      // 2. FADE UP ANIMATIONS
+      gsap.utils.toArray(".fade-up").forEach((elem) => {
+        gsap.to(elem, {
+          y: 0,
+          opacity: 1,
+          duration: 2,
+          ease: "power2.out",
+          scrollTrigger: { trigger: elem, start: "top 80%" },
+        });
+      });
+
+      // 3. EDITORIAL SPLIT SCREEN DYNAMIC LOGIC
+      // This loops through every editorial section and wires up the scroll triggers automatically
+      document.querySelectorAll(".editorial-split").forEach((section) => {
+        const blocks = section.querySelectorAll(".content-block");
+        const images = section.querySelectorAll(".sticky-img");
+
+        blocks.forEach((block, index) => {
+          ScrollTrigger.create({
+            trigger: block,
+            start: "top center",
+            end: "bottom center",
+            onEnter: () => activateImage(images, index),
+            onEnterBack: () => activateImage(images, index),
+          });
+        });
+      });
+
+      function activateImage(images, index) {
+        images.forEach((img) => img.classList.remove("active"));
+        if (images[index]) images[index].classList.add("active");
+      }
+
+      // 4. SENSORY CAROUSEL & BACKGROUND MORPHING LOGIC
+      const carouselSection = document.getElementById("sensory-carousel");
+      const track = document.querySelector(".carousel-track");
+      const items = document.querySelectorAll(".carousel-item");
+      const prevBtn = document.querySelector(".prev-btn");
+      const nextBtn = document.querySelector(".next-btn");
+
+      // The three distinct background feelings
+      const colors = [
+        "#E8DCE5", // 0: Creamy Purple
+        "#DCE8E1", // 1: Sage Green
+        "#E8E0DC", // 2: Warm Orange
+      ];
+
+      let currentIndex = 0;
+
+      function updateCarousel() {
+        // Slide the track
+        track.style.transform = `translateX(-${currentIndex * 100}vw)`;
+        // Morph the background color
+        carouselSection.style.backgroundColor = colors[currentIndex];
+      }
+
+      nextBtn.addEventListener("click", () => {
+        if (currentIndex < items.length - 1) {
+          currentIndex++;
+        } else {
+          currentIndex = 0; // Loop back to start
+        }
+        updateCarousel();
+      });
+
+      prevBtn.addEventListener("click", () => {
+        if (currentIndex > 0) {
+          currentIndex--;
+        } else {
+          currentIndex = items.length - 1; // Loop to end
+        }
+        updateCarousel();
+      });
+    </script>
+  </body>
+</html>
