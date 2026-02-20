@@ -38,7 +38,9 @@
         color: var(--text-color);
         font-family: var(--font-body);
         overflow-x: hidden;
-        cursor: none; /* Custom cursor active */
+        cursor: none;
+        /* Ensure smooth rendering */
+        -webkit-font-smoothing: antialiased;
       }
 
       a {
@@ -53,7 +55,7 @@
         display: block;
       }
 
-      /* --- CURSOR (Instant Response) --- */
+      /* --- CURSOR --- */
       .cursor {
         width: 15px;
         height: 15px;
@@ -64,15 +66,16 @@
         z-index: 9999;
         transform: translate(-50%, -50%);
         mix-blend-mode: difference;
-        /* Removed transition for instant feel */
+        will-change:
+          transform, width, height; /* Optimization hint for browser */
       }
       body.hover-active .cursor {
         width: 50px;
         height: 50px;
         border-radius: 0;
         transition:
-          width 0.2s,
-          height 0.2s; /* Only animate size change */
+          width 0.2s cubic-bezier(0.16, 1, 0.3, 1),
+          height 0.2s cubic-bezier(0.16, 1, 0.3, 1);
       }
 
       /* --- HEADER --- */
@@ -120,7 +123,6 @@
         height: calc(100vh - 100px);
         overflow-y: auto;
       }
-      /* Custom Scrollbar for sidebar */
       .sidebar::-webkit-scrollbar {
         width: 5px;
       }
@@ -157,7 +159,8 @@
         display: grid;
         grid-template-columns: repeat(3, 1fr);
         gap: 1px;
-        background: #222; /* Gap creates the border lines */
+        background: #222;
+        align-content: start; /* Ensures grid packs upwards when filtering */
       }
       .product {
         background: black;
@@ -166,12 +169,11 @@
         display: flex;
         flex-direction: column;
         overflow: hidden;
-        transition: 0.3s;
+        transition: border 0.3s;
         cursor: none;
-
-        /* INITIAL STATE FOR ANIMATION (Fixes Vanishing Bug) */
+        /* Initial state for GSAP */
         opacity: 0;
-        transform: translateY(50px);
+        visibility: hidden; /* Hides it completely until GSAP starts */
       }
       .product:hover {
         z-index: 2;
@@ -185,7 +187,9 @@
         position: relative;
       }
       .p-img-box img {
-        transition: 0.5s;
+        transition:
+          transform 0.5s,
+          filter 0.5s;
         filter: grayscale(100%);
       }
       .product:hover .p-img-box img {
@@ -203,6 +207,7 @@
         font-size: 0.7rem;
         padding: 4px 8px;
         font-weight: 700;
+        z-index: 3;
       }
 
       .p-info {
@@ -248,7 +253,7 @@
         font-weight: 700;
         font-size: 1.2rem;
         transform: translateY(100%);
-        transition: 0.3s;
+        transition: 0.3s cubic-bezier(0.16, 1, 0.3, 1);
       }
       .product:hover .add-btn {
         transform: translateY(0);
@@ -273,7 +278,7 @@
         }
         .sidebar {
           display: none;
-        } /* Hide sidebar on mobile/tablet */
+        }
         .grid {
           grid-template-columns: repeat(2, 1fr);
         }
@@ -307,200 +312,183 @@
         <div class="filter-group">
           <h3 class="filter-title">COLLECTION</h3>
           <ul class="filter-list">
-            <li class="active interactable">All Items</li>
-            <li class="interactable">New Arrivals</li>
-            <li class="interactable">Acid Series</li>
-            <li class="interactable">Archive</li>
+            <li class="active interactable" data-filter="all">All Items</li>
+            <li class="interactable" data-filter="new-arrivals">
+              New Arrivals
+            </li>
+            <li class="interactable" data-filter="acid-series">Acid Series</li>
+            <li class="interactable" data-filter="archive">Archive</li>
           </ul>
         </div>
         <div class="filter-group">
           <h3 class="filter-title">CATEGORY</h3>
           <ul class="filter-list">
-            <li class="interactable">Outerwear</li>
-            <li class="interactable">Tops</li>
-            <li class="interactable">Bottoms</li>
-            <li class="interactable">Footwear</li>
-            <li class="interactable">Accessories</li>
+            <li class="interactable" data-filter="outerwear">Outerwear</li>
+            <li class="interactable" data-filter="tops">Tops</li>
+            <li class="interactable" data-filter="bottoms">Bottoms</li>
+            <li class="interactable" data-filter="footwear">Footwear</li>
+            <li class="interactable" data-filter="accessories">Accessories</li>
           </ul>
         </div>
       </aside>
 
       <main class="grid">
-        <div class="product interactable">
+        <div
+          class="product interactable"
+          data-tags="new-arrivals acid-series outerwear"
+        >
           <div class="p-img-box">
             <span class="tag">BESTSELLER</span>
-            <img
-              src="https://images.unsplash.com/photo-1551488852-d81a25793da8?q=80&w=2670&auto=format&fit=crop"
-            />
+            <img src="puffer.png" alt="Acid Puffer" />
           </div>
           <div class="p-info">
             <div class="p-text">
               <span class="p-name">Acid Puffer</span
               ><span class="p-price">$450</span>
             </div>
-            <div class="add-btn">ADD TO STASH</div>
+            <div class="add-btn">[ SECURE ]</div>
           </div>
         </div>
 
-        <div class="product interactable">
+        <div
+          class="product interactable"
+          data-tags="new-arrivals acid-series tops"
+        >
           <div class="p-img-box">
-            <img
-              src="https://images.unsplash.com/photo-1620799140408-ed5341cd2431?q=80&w=2672&auto=format&fit=crop"
-            />
+            <img src="toxic.png" alt="Toxic Tee" />
           </div>
           <div class="p-info">
             <div class="p-text">
               <span class="p-name">Toxic Tee</span
               ><span class="p-price">$120</span>
             </div>
-            <div class="add-btn">ADD TO STASH</div>
+            <div class="add-btn">[ SECURE ]</div>
           </div>
         </div>
 
-        <div class="product interactable">
+        <div class="product interactable" data-tags="new-arrivals footwear">
           <div class="p-img-box">
             <span class="tag">LIMITED</span>
-            <img
-              src="https://images.unsplash.com/photo-1552346154-21d32810aba3?q=80&w=2670&auto=format&fit=crop"
-            />
+            <img src="sneakers.png" alt="Sneaker V1" />
           </div>
           <div class="p-info">
             <div class="p-text">
               <span class="p-name">Sneaker V1</span
               ><span class="p-price">$890</span>
             </div>
-            <div class="add-btn">ADD TO STASH</div>
+            <div class="add-btn">[ SECURE ]</div>
           </div>
         </div>
 
-        <div class="product interactable">
+        <div class="product interactable" data-tags="bottoms">
           <div class="p-img-box">
-            <img
-              src="https://images.unsplash.com/photo-1504198458649-3128b932f49e?q=80&w=2574&auto=format&fit=crop"
-            />
+            <img src="pants.png" alt="Cargo Pant" />
           </div>
           <div class="p-info">
             <div class="p-text">
               <span class="p-name">Cargo Pant</span
               ><span class="p-price">$320</span>
             </div>
-            <div class="add-btn">ADD TO STASH</div>
+            <div class="add-btn">[ SECURE ]</div>
           </div>
         </div>
 
-        <div class="product interactable">
+        <div class="product interactable" data-tags="outerwear archive">
           <div class="p-img-box">
-            <img
-              src="https://images.unsplash.com/photo-1591047139829-d91aecb6caea?q=80&w=2536&auto=format&fit=crop"
-            />
+            <img src="utility.png" alt="Utility Jacket" />
           </div>
           <div class="p-info">
             <div class="p-text">
               <span class="p-name">Utility Jacket</span
               ><span class="p-price">$550</span>
             </div>
-            <div class="add-btn">ADD TO STASH</div>
+            <div class="add-btn">[ SECURE ]</div>
           </div>
         </div>
 
-        <div class="product interactable">
+        <div class="product interactable" data-tags="tops archive">
           <div class="p-img-box">
-            <img
-              src="https://images.unsplash.com/photo-1583743814966-8936f5b7be1a?q=80&w=2574&auto=format&fit=crop"
-            />
+            <img src="hoodie.png" alt="Blackout Hoodie" />
           </div>
           <div class="p-info">
             <div class="p-text">
               <span class="p-name">Blackout Hoodie</span
               ><span class="p-price">$180</span>
             </div>
-            <div class="add-btn">ADD TO STASH</div>
+            <div class="add-btn">[ SECURE ]</div>
           </div>
         </div>
 
-        <div class="product interactable">
+        <div class="product interactable" data-tags="outerwear accessories">
           <div class="p-img-box">
-            <img
-              src="https://images.unsplash.com/photo-1605518216938-7f31b8b78211?q=80&w=2574&auto=format&fit=crop"
-            />
+            <img src="vest.png" alt="Tech Vest" />
           </div>
           <div class="p-info">
             <div class="p-text">
               <span class="p-name">Tech Vest</span
               ><span class="p-price">$280</span>
             </div>
-            <div class="add-btn">ADD TO STASH</div>
+            <div class="add-btn">[ SECURE ]</div>
           </div>
         </div>
 
-        <div class="product interactable">
+        <div class="product interactable" data-tags="footwear archive">
           <div class="p-img-box">
             <span class="tag">RESTOCK</span>
-            <img
-              src="https://images.unsplash.com/photo-1578632292335-df3abbb0d586?q=80&w=2574&auto=format&fit=crop"
-            />
+            <img src="boots.png" alt="Combat Boots" />
           </div>
           <div class="p-info">
             <div class="p-text">
               <span class="p-name">Combat Boots</span
               ><span class="p-price">$400</span>
             </div>
-            <div class="add-btn">ADD TO STASH</div>
+            <div class="add-btn">[ SECURE ]</div>
           </div>
         </div>
 
-        <div class="product interactable">
+        <div class="product interactable" data-tags="tops acid-series">
           <div class="p-img-box">
-            <img
-              src="https://images.unsplash.com/photo-1576566588028-4147f3842f27?q=80&w=2564&auto=format&fit=crop"
-            />
+            <img src="tee.png" alt="Oversized Tee" />
           </div>
           <div class="p-info">
             <div class="p-text">
               <span class="p-name">Oversized Tee</span
               ><span class="p-price">$90</span>
             </div>
-            <div class="add-btn">ADD TO STASH</div>
+            <div class="add-btn">[ SECURE ]</div>
           </div>
         </div>
 
-        <div class="product interactable">
+        <div class="product interactable" data-tags="bottoms acid-series">
           <div class="p-img-box">
-            <img
-              src="https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?q=80&w=2000&auto=format&fit=crop"
-            />
+            <img src="denim.png" alt="Distressed Denim" />
           </div>
           <div class="p-info">
             <div class="p-text">
               <span class="p-name">Distressed Denim</span
               ><span class="p-price">$250</span>
             </div>
-            <div class="add-btn">ADD TO STASH</div>
+            <div class="add-btn">[ SECURE ]</div>
           </div>
         </div>
 
-        <div class="product interactable">
+        <div class="product interactable" data-tags="accessories">
           <div class="p-img-box">
-            <img
-              src="https://images.unsplash.com/photo-1532453288672-3a27e9be9efd?q=80&w=2564&auto=format&fit=crop"
-            />
+            <img src="bag.png" alt="Modular Bag" />
           </div>
           <div class="p-info">
             <div class="p-text">
               <span class="p-name">Modular Bag</span
               ><span class="p-price">$650</span>
             </div>
-            <div class="add-btn">ADD TO STASH</div>
+            <div class="add-btn">[ SECURE ]</div>
           </div>
         </div>
 
-        <div class="product interactable">
+        <div class="product interactable" data-tags="accessories archive">
           <div class="p-img-box">
             <span class="tag" style="background: white">SOLD OUT</span>
-            <img
-              src="https://images.unsplash.com/photo-1539008835657-9e8e9680c956?q=80&w=2574&auto=format&fit=crop"
-              style="opacity: 0.5"
-            />
+            <img src="mask.png" style="opacity: 0.5" alt="Cyber Mask" />
           </div>
           <div class="p-info">
             <div class="p-text">
@@ -520,18 +508,14 @@
     </div>
 
     <script>
-      // 1. SAFE DOM LOADING (Fixes "Vanish" bug)
       document.addEventListener("DOMContentLoaded", () => {
-        // 2. INSTANT CURSOR (Fixes "Slow" bug)
+        // --- INSTANT CURSOR SETUP ---
         const cursor = document.querySelector(".cursor");
-
-        // Only enable on desktop
         if (window.matchMedia("(hover: hover)").matches) {
+          gsap.set(cursor, { xPercent: -50, yPercent: -50 }); // Center anchor point
           document.addEventListener("mousemove", (e) => {
-            // .set() is instant, .to() has duration. We use .set() for 1:1 movement.
             gsap.set(cursor, { x: e.clientX, y: e.clientY });
           });
-
           document.querySelectorAll(".interactable").forEach((el) => {
             el.addEventListener("mouseenter", () =>
               document.body.classList.add("hover-active"),
@@ -542,15 +526,83 @@
           });
         }
 
-        // 3. ROBUST GRID ANIMATION (Uses .to instead of .from)
-        // This ensures elements fade IN, rather than trying to fade from invisible
-        gsap.to(".product", {
-          y: 0,
-          opacity: 1,
-          duration: 0.6,
-          stagger: 0.05,
-          ease: "power2.out",
-          delay: 0.2,
+        // --- INITIAL LOAD ANIMATION ---
+        // NOTE: If this lags, your images are too big. Optimize them!
+        gsap.fromTo(
+          ".product",
+          { y: 60, opacity: 0, visibility: "hidden" }, // Start state
+          {
+            y: 0,
+            opacity: 1,
+            visibility: "visible",
+            duration: 0.8,
+            stagger: 0.05,
+            ease: "power3.out",
+            delay: 0.2,
+          },
+        );
+
+        // --- FILTERING SYSTEM ---
+        const filterButtons = document.querySelectorAll(".filter-list li");
+        const allProducts = document.querySelectorAll(".product");
+
+        filterButtons.forEach((button) => {
+          button.addEventListener("click", function () {
+            // 1. Manage Active State visually
+            filterButtons.forEach((btn) => btn.classList.remove("active"));
+            this.classList.add("active");
+
+            // 2. Get the filter value clicked
+            const filterValue = this.getAttribute("data-filter");
+
+            // 3. Categorize products
+            const matches = [];
+            const nonMatches = [];
+
+            allProducts.forEach((product) => {
+              const productTags = product.getAttribute("data-tags");
+              // Check if it's "all" OR if the product tags contain the filter value
+              if (filterValue === "all" || productTags.includes(filterValue)) {
+                matches.push(product);
+              } else {
+                nonMatches.push(product);
+              }
+            });
+
+            // 4. GSAP Animation Sequence for Filtering
+            const tl = gsap.timeline();
+
+            // First, animate OUT the non-matches quickly
+            if (nonMatches.length > 0) {
+              tl.to(nonMatches, {
+                opacity: 0,
+                scale: 0.95,
+                duration: 0.3,
+                ease: "power2.in",
+                // Crucial: set display none so the grid repacks
+                onComplete: () => gsap.set(nonMatches, { display: "none" }),
+              });
+            }
+
+            // Then, animate IN the matches
+            if (matches.length > 0) {
+              // Ensure they are set to flex before animating in
+              tl.set(
+                matches,
+                { display: "flex", scale: 0.95, opacity: 0, y: 30 },
+                nonMatches.length > 0 ? "-=0.1" : null,
+              );
+              tl.to(matches, {
+                opacity: 1,
+                scale: 1,
+                y: 0,
+                visibility: "visible", // ensure visibility just in case
+                duration: 0.5,
+                stagger: 0.05,
+                ease: "power3.out",
+              });
+            }
+          });
         });
       });
     </script>
